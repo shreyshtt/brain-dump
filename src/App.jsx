@@ -141,7 +141,19 @@ export default function Journal() {
       });
 
       const data = await res.json();
+      
+      if (!res.ok) {
+        setError("API error: " + (data.error?.message || res.status));
+        setProcessing(false);
+        return;
+      }
+
       const cleaned = data.content?.[0]?.text || "";
+      if (!cleaned) {
+        setError("Got empty response. Try again.");
+        setProcessing(false);
+        return;
+      }
 
       const entry = {
         id: Date.now(),
@@ -155,7 +167,7 @@ export default function Journal() {
       fullTranscriptRef.current = "";
       setView("feed");
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError("Network error: " + err.message);
     }
 
     setProcessing(false);
